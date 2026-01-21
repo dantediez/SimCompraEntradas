@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Compra de Entradas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="estilos/estilos.css">
+    <style>
+        #caja-preguntas, #consola-mensajes {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simulador de Compra de Entradas</h1>
+        <p>Este simulador te permite calcular el costo de entradas para un evento, aplicando descuentos según tu edad. Los resultados aparecerán en la consola y en esta página.</p>
+        <button id="iniciar-simulador" class="btn">Iniciar Simulador</button>
+
+        <div id="caja-preguntas">
+            <p>Respondé las preguntas en los cuadros de diálogo...</p>
+        </div>
+
+        <div id="consola-mensajes"></div>
+    </div>
+    <script src="js/simulador.js"></script>
+</body>
+</html>
