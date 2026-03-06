@@ -56,6 +56,33 @@ p {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+#caja-preguntas .card-title {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+#opciones-entrada {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.form-check {
+    margin-bottom: 10px;
+    padding-left: 20px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
+
+.form-check-label {
+    font-size: 1.1em;
+    color: #333;
+}
+
+/* Contenedor de la consola de mensajes (sin scrollbar) */
 #consola-mensajes {
     background-color: #2c3e50;
     color: #ecf0f1;
@@ -65,6 +92,26 @@ p {
     text-align: left;
     margin: 20px auto;
     max-width: 600px;
-    overflow-y: auto;
-    max-height: 200px;
+    width: 100%;
+}
+
+/* Recuadro del resumen de compra (sin scrollbar y expandible) */
+#resultado-compra {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 15px auto;
+    max-width: 600px;
+    width: 100%;
+    text-align: left;
+}
+
+#resultado-compra p {
+    margin-bottom: 8px;
+    font-size: 1em;
+}
+
+#resultado-compra strong {
+    color: #2c3e50;
 }

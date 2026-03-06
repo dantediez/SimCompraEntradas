@@ -1,0 +1,7 @@
+{
+  "tiposEntrada": [
+    {"id": 1, "nombre": "General", "precio": 15000},
+    {"id": 2, "nombre": "VIP", "precio": 30000},
+    {"id": 3, "nombre": "Platea", "precio": 25000}
+  ]
+}

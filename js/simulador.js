@@ -6,62 +6,100 @@ let tipoEntrada;
 let precioEntrada;
 let descuento = 0;
 let totalAPagar;
+let tiposEntrada = [];
 
-// Arrays para tipos de entrada y precios
-const tiposEntrada = ["General", "VIP", "Platea"];
-const preciosEntrada = [1500, 3000, 2500];
+    // Función para cargar datos desde JSON
+    async function cargarDatos() {
+    try {
+        const response = await fetch('data/data.json');
+        const data = await response.json();
+        tiposEntrada = data.tiposEntrada;
+        return true;
+    } catch (error) {
+        Swal.fire("Error", "No se pudieron cargar los datos de las entradas.", "error");
+        return false;
+    }
+}
 
-// Función para mostrar las cajas
-function mostrarCajas() {
+    // Función para mostrar las opciones de entrada en el DOM
+    function mostrarOpcionesEntrada() {
+    const contenedor = document.getElementById("opciones-entrada");
+    contenedor.innerHTML = tiposEntrada.map(entrada =>
+        `<div class="form-check">
+        <input class="form-check-input" type="radio" name="tipoEntrada" id="entrada${entrada.id}" value="${entrada.id}">
+        <label class="form-check-label" for="entrada${entrada.id}">
+            ${entrada.nombre} - $${entrada.precio}
+        </label>
+        </div>`
+    ).join("");
+}
+
+    // Función para pedir datos al usuario con SweetAlert2 y validaciones
+    async function saludarYPedirdatos() {
+    // Pedir nombre
+    const { value: nombre } = await Swal.fire({
+        title: "¡Hola! ¿Cuál es tu nombre?",
+        input: "text",
+        showCancelButton: true,
+        inputValidator: (value) => !value && "Por favor, ingresá tu nombre."
+        });
+    if (!nombre) return false;
+    nombreUsuario = nombre;
+
+    // Pedir edad (validar que no sea negativa)
+    const { value: edad } = await Swal.fire({
+        title: `${nombreUsuario}, ¿cuántos años tenés?`,
+        input: "number",
+        showCancelButton: true,
+        inputValidator: (value) => {
+        if (isNaN(value)) return "Por favor, ingresá un número válido.";
+        if (value < 0) return "La edad no puede ser negativa.";
+        return null;
+        }
+    });
+    if (!edad) return false;
+    edadUsuario = parseInt(edad);
+
+    // Pedir cantidad de entradas (validar que no sea negativa o cero)
+    const { value: cantidad } = await Swal.fire({
+        title: "¿Cuántas entradas querés comprar?",
+        input: "number",
+        showCancelButton: true,
+        inputValidator: (value) => {
+        if (isNaN(value)) return "Por favor, ingresá un número válido.";
+        if (value <= 0) return "La cantidad de entradas debe ser mayor que cero.";
+        return null;
+        }
+    });
+    if (!cantidad) return false;
+    cantidadEntradas = parseInt(cantidad);
+
+    // Mostrar opciones de entrada
     document.getElementById("caja-preguntas").style.display = "block";
-    document.getElementById("consola-mensajes").style.display = "block";
-}
+    mostrarOpcionesEntrada();
 
-// Función para actualizar la consola con mensajes
-function actualizarConsola(mensaje) {
-    const consola = document.getElementById("consola-mensajes");
-    consola.innerHTML += `<p>${mensaje}</p>`;
-}
+    // Pedir tipo de entrada
+    const { value: tipo } = await Swal.fire({
+        title: "Elegí el tipo de entrada:",
+        html: document.getElementById("opciones-entrada").innerHTML,
+        showCancelButton: true,
+        focusConfirm: false,
+        preConfirm: () => {
+        const seleccionado = document.querySelector('input[name="tipoEntrada"]:checked');
+        return seleccionado ? seleccionado.value : false;
+        }
+    });
 
-// Función 1: Saludar y pedir datos al usuario
-function saludarYPedirdatos() {
-    mostrarCajas();
-    actualizarConsola("Iniciando simulador...");
+    if (!tipo) return false;
+    tipoEntrada = parseInt(tipo);
 
-    nombreUsuario = prompt("¡Hola! ¿Cuál es tu nombre?");
-    if (nombreUsuario === null) {
-        alert("Operación cancelada por el usuario.");
-        actualizarConsola("Simulador cancelado.");
-        return false;
-    }
-
-    edadUsuario = parseInt(prompt(`Hola, ${nombreUsuario}. ¿Cuántos años tenés?`));
-    if (isNaN(edadUsuario)) {
-        alert("Por favor, ingresá un número válido para la edad.");
-        actualizarConsola("Error: Edad no válida.");
-        return false;
-    }
-
-    cantidadEntradas = parseInt(prompt("¿Cuántas entradas querés comprar?"));
-    if (isNaN(cantidadEntradas)) {
-        alert("Por favor, ingresá un número válido para la cantidad de entradas.");
-        actualizarConsola("Error: Cantidad de entradas no válida.");
-        return false;
-    }
-
-    tipoEntrada = prompt(`Elegí el tipo de entrada:\n1. ${tiposEntrada[0]} ($${preciosEntrada[0]})\n2. ${tiposEntrada[1]} ($${preciosEntrada[1]})\n3. ${tiposEntrada[2]} ($${preciosEntrada[2]})`);
-    if (tipoEntrada === null || tipoEntrada < 1 || tipoEntrada > 3) {
-        alert("Opción de entrada no válida.");
-        actualizarConsola("Error: Opción de entrada no válida.");
-        return false;
-    }
     return true;
 }
 
-// Función 2: Calcular el precio total con descuentos
-function calcularTotal() {
-    let indiceEntrada = parseInt(tipoEntrada) - 1;
-    precioEntrada = preciosEntrada[indiceEntrada];
+    // Función para calcular el total con descuentos
+    function calcularTotal() {
+    const entradaSeleccionada = tiposEntrada.find(e => e.id === tipoEntrada);
+    precioEntrada = entradaSeleccionada.precio;
     let subtotal = cantidadEntradas * precioEntrada;
 
     if (edadUsuario < 12) {
@@ -73,30 +111,36 @@ function calcularTotal() {
     totalAPagar = subtotal * (1 - descuento);
 }
 
-// Función 3: Mostrar resumen de la compra
-function mostrarResumen() {
-    console.log(`--- Resumen de compra para ${nombreUsuario} ---`);
-    console.log(`Entradas: ${cantidadEntradas} x ${tiposEntrada[tipoEntrada - 1]}`);
-    console.log(`Subtotal: $${cantidadEntradas * precioEntrada}`);
-    console.log(`Descuento aplicado: ${descuento * 100}%`);
-    console.log(`Total a pagar: $${totalAPagar.toFixed(2)}`);
+    // Función para mostrar el resumen de la compra
+    function mostrarResumen() {
+    document.getElementById("caja-preguntas").style.display = "none"; // Ocultar opciones de entrada
+    const entradaSeleccionada = tiposEntrada.find(e => e.id === tipoEntrada);
+    const resumen = document.getElementById("resultado-compra");
+    resumen.innerHTML = `
+        <p><strong>Nombre:</strong> ${nombreUsuario}</p>
+        <p><strong>Edad:</strong> ${edadUsuario} años</p>
+        <p><strong>Entradas:</strong> ${cantidadEntradas} x ${entradaSeleccionada.nombre}</p>
+        <p><strong>Subtotal:</strong> $${(cantidadEntradas * entradaSeleccionada.precio).toFixed(2)}</p>
+        <p><strong>Descuento aplicado:</strong> ${(descuento * 100).toFixed(0)}%</p>
+        <p><strong>Total a pagar:</strong> $${totalAPagar.toFixed(2)}</p>
+    `;
+    document.getElementById("consola-mensajes").style.display = "block";
 
-    alert(`¡Gracias, ${nombreUsuario}!\n\nTu compra:\n- ${cantidadEntradas} entradas ${tiposEntrada[tipoEntrada - 1]}\n- Total: $${totalAPagar.toFixed(2)}`);
-
-    // Limpiar la consola antes de mostrar el resumen
-    document.getElementById("consola-mensajes").innerHTML = "<strong>Resumen de compra:</strong>";
-    actualizarConsola(`- Nombre: ${nombreUsuario}`);
-    actualizarConsola(`- Edad: ${edadUsuario} años`);
-    actualizarConsola(`- Entradas: ${cantidadEntradas} x ${tiposEntrada[tipoEntrada - 1]}`);
-    actualizarConsola(`- Subtotal: $${cantidadEntradas * precioEntrada}`);
-    actualizarConsola(`- Descuento aplicado: ${descuento * 100}%`);
-    actualizarConsola(`- Total a pagar: $${totalAPagar.toFixed(2)}`);
+    // Mensaje de confirmación final con SweetAlert2
+    Swal.fire({
+        title: "¡Gracias por tu compra, " + nombreUsuario + "!",
+        text: "Tu compra ha sido procesada con éxito. Disfrutá del festival.",
+        icon: "success",
+        confirmButtonText: "Aceptar"
+    });
 }
 
-// Evento para iniciar el simulador al hacer clic en el botón
-document.getElementById("iniciar-simulador").addEventListener("click", function() {
-    if (saludarYPedirdatos()) {
+// Evento para iniciar el simulador
+document.getElementById("iniciar-simulador").addEventListener("click", async function() {
+    if (await cargarDatos()) {
+    if (await saludarYPedirdatos()) {
         calcularTotal();
         mostrarResumen();
+        }
     }
 });
